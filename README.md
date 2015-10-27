@@ -1,8 +1,10 @@
 # netty-message-sender
 
+key=value\nkey=value\nkey=value\n 형태의 메시지를 주고 받는 Netty 기반 Message 전송기
+
 ### 예제 코드
 ```java
-    NioMessageSender messageSender = new NioMessageSender("127.0.0.1", 9001); // (1)
+	NioMessageSender messageSender = new NioMessageSender("127.0.0.1", 9001); // (1)
 	messageSender.setWorkerGroup(new NioEventLoopGroup()); // (2)
 	messageSender.setMessageTimeoutMilliseconds(5000); // (3)
     messageSender.init(); // (4)
@@ -18,8 +20,8 @@
 	for (int i = 0; i < WORKER_COUNT; i++) {
 		Map<String, String> outMap = new HashMap<>();
 		outMap.put("KEY1", "VALUE1-" + i);
-		outMap.put("KEY2", "VALUE2-");
-		outMap.put("KEY3", "VALUE3-");
+		outMap.put("KEY2", "VALUE2-" + i);
+		outMap.put("KEY3", "VALUE3-" + i);
 		messageSender.send(outMap); // (6)
 	}
 ```
@@ -40,4 +42,4 @@ KEY3=VALUE3-0
 ```
 
 ### 데이터 수신
-서버로 부터 수신된 메시지가 key1=xxx\nkey2=yyy 이면, Map<String, String> 형태로 저장되어 callback 메소드가 호출된다.
+서버로 부터 수신된 메시지가 KEY1=xxx\nKEY2=yyy\nKEY3=zzz 이면, Map<String, String> 형태로 저장되어 callback 메소드가 호출된다.
