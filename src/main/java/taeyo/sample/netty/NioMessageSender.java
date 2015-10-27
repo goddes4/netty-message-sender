@@ -31,7 +31,7 @@ public class NioMessageSender {
 
 	private static final int RETRY_DELAY_TIME = 10;
 
-    private final Bootstrap bootstrap = new Bootstrap();
+	private final Bootstrap bootstrap = new Bootstrap();
 
 	private final String serverIP;
 	private final int serverPort;
