@@ -1,6 +1,6 @@
 # netty-message-sender
 
-key=value\nkey=value\nkey=value\n 형태의 메시지를 주고 받는 Netty 기반 Message 전송기
+`key=value\nkey=value\nkey=value\n` 형태의 메시지를 주고 받는 Netty 기반 Message 전송기
 
 ### 예제 코드
 ```java
