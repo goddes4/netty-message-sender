@@ -79,7 +79,11 @@ public class NioMessageSender {
 								public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 									if (cause instanceof ReadTimeoutException) {
 										if (!map.isEmpty()) {
-											successCallback.onSuccess(map);
+											try {
+												successCallback.onSuccess(map);
+											} catch (RuntimeException e) {
+												e.printStackTrace();
+											}
 										} else {
 											failureCallback.onFailure(new NotReceivedMessageException("Not received message"));
 										}
@@ -125,11 +129,11 @@ public class NioMessageSender {
 		EventLoopGroup workerGroup = new NioEventLoopGroup();
 		CountDownLatch countDownLatch = new CountDownLatch(WORKER_COUNT);
 
-        NioMessageSender tcpClient = new NioMessageSender("127.0.0.1", 9001);
-		tcpClient.setWorkerGroup(workerGroup);
-		tcpClient.setMessageTimeoutMilliseconds(5000);
-        tcpClient.init();
-		tcpClient.addCallback(inMap -> {
+        NioMessageSender messageSender = new NioMessageSender("127.0.0.1", 9001);
+		messageSender.setWorkerGroup(workerGroup);
+		messageSender.setMessageTimeoutMilliseconds(5000);
+        messageSender.init();
+		messageSender.addCallback(inMap -> {
 			log.info(inMap.entrySet()
 					.stream()
 					.map(entry -> entry.getKey() + "=" + entry.getValue())
@@ -142,10 +146,10 @@ public class NioMessageSender {
 
 		for (int i = 0; i < WORKER_COUNT; i++) {
 			Map<String, String> outMap = new HashMap<>();
-			outMap.put("KEY1", "VALUE1" + i);
-			outMap.put("KEY2", "VALUE2");
-			outMap.put("KEY3", "VALUE3");
-			tcpClient.send(outMap);
+			outMap.put("KEY1", "VALUE1-" + i);
+			outMap.put("KEY2", "VALUE2-" + i);
+			outMap.put("KEY3", "VALUE3-" + i);
+			messageSender.send(outMap);
 		}
 
 		countDownLatch.await();
