@@ -28,7 +28,7 @@ public class CustomService {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     public void doIt(Map<String, String> inMap) {
-        log.info(inMap.entrySet()
+        log.info("received data : {}", inMap.entrySet()
                 .stream()
                 .map(entry -> entry.getKey() + "=" + entry.getValue())
                 .collect(joining(", ", "[", "]")));

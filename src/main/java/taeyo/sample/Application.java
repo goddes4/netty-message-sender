@@ -53,25 +53,31 @@ public class Application {
         NioMessageSender messageSender = new NioMessageSender("127.0.0.1", 9001);
         messageSender.setWorkerGroup(new NioEventLoopGroup(4));
         messageSender.setMessageTimeoutMilliseconds(3000);
-        messageSender.init();
-        messageSender.setSuccessCallback(inMap -> customService.doIt(inMap));
-        messageSender.setFailureCallback(ex -> log.error("{}", ex.toString()));
         return messageSender;
     }
 
     @Bean
     public CommandLineRunner commandLineRunner() {
 
-        return args -> {
-            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-                for (int i = 0; i < WORKER_COUNT; i++) {
-                    Map<String, String> outMap = new HashMap<>();
-                    outMap.put("KEY1", "VALUE1-" + i);
-                    outMap.put("KEY2", "VALUE2-" + i);
-                    outMap.put("KEY3", "VALUE3-" + i);
-                    messageSender.send(outMap);
-                }
-            }, 0, 10, TimeUnit.SECONDS);
-        };
+        return args -> Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+            for (int i = 0; i < WORKER_COUNT; i++) {
+                Map<String, String> outMap = new HashMap<>();
+                outMap.put("KEY1", "VALUE1-" + i);
+                outMap.put("KEY2", "VALUE2-" + i);
+                outMap.put("KEY3", "VALUE3-" + i);
+                final int finalI = i;
+                messageSender.send(
+                        // Message To send
+                        outMap,
+                        // Success callback
+                        inMap -> {
+                            log.debug("Worker number : {}", finalI);
+                            customService.doIt(inMap);
+                        },
+                        // Failure callback
+                        ex -> log.error("{}", ex.toString())
+                );
+            }
+        }, 0, 10, TimeUnit.SECONDS);
     }
 }
